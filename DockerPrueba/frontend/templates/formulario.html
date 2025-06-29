@@ -1,0 +1,48 @@
+<!-- templates/formulario.html -->
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Películas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-5">
+
+
+    <h1>Registrar Película</h1>
+    <form method="POST">
+        <div class="mb-3">
+            <label class="form-label">Título</label>
+            <input type="text" class="form-control" name="titulo" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Director</label>
+            <input type="text" class="form-control" name="director" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Año</label>
+            <input type="number" class="form-control" name="anio" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+    </form>
+
+    <hr>
+
+    <h2>Películas Guardadas</h2>
+    <div class="row">
+        {% for pelicula in peliculas %}
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                {% if pelicula.poster_url %}
+                <img src="{{ pelicula.poster_url }}" class="card-img-top" alt="Poster de {{ pelicula.titulo }}">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ pelicula.titulo }}</h5>
+                    <p class="card-text">Dirigida por {{ pelicula.director }} ({{ pelicula.anio }})</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,95 @@
+version: '3.8'
+#Para aumentar las replicas en los servicios se debe cambiar en replicas: al número deseado
+services:
+  web:
+    image: abel217/mi-app-fastapi:latest
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: "postgresql://postgres:password123@db:5432/peliculas_db"
+      OMDB_API_KEY: "a5612262"
+    depends_on:
+      - db
+    networks:
+      - red-cluster
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          memory: 256M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+
+  frontend:
+    image: abel217/mi-app-frontend:latest
+    ports:
+      - "3000:80"
+
+    networks:
+      - red-cluster
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          memory: 128M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: "peliculas_db"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "password123"
+      POSTGRES_HOST_AUTH_METHOD: "md5"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - red-cluster
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      resources:
+        limits:
+          memory: 1G
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "admin@admin.com"
+      PGADMIN_DEFAULT_PASSWORD: "admin"
+    ports:
+      - "8080:8080"
+    networks:
+      - red-cluster
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+
+volumes:
+  postgres_data:
+
+networks:
+  red-cluster:
+    driver: overlay
